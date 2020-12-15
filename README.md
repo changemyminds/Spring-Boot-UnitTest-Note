@@ -70,7 +70,7 @@ jacocoTestReport {
 Help => Edit Custom VM Options => 開啟202.6948.69.vmoptions <br>
 將`-Dfile.encoding=utf-8`加入後，重新啟動IDEA。
 
-**補充**
+_**補充**_ <br>
 如果重新啟動IDEA後，執行仍然有亂碼問題，解決方式如下 <br>
 File => Invalidate Caches / Restart => 點選Invalidate and Restart，此方式會清除Cache並重新啟動。
  
@@ -83,11 +83,13 @@ gradlew clean build
 gradlew -Dfile.encoding=UTF-8 clean build
 ```
 ### 結果顯示
+![image](https://github.com/changemyminds/Spring-Boot-UnitTest-Note/pictures/report.PNG)
  
 ## 參考
 - [@ExtendWith(SpringExtension.class) vs @ExtendWith(MockitoExtension.class)](https://stackoverflow.com/questions/60308578/extendwithspringextension-class-vs-extendwithmockitoextension-class)
 - [Jacoco Gradle 6.7.1官方文件](https://docs.gradle.org/current/userguide/jacoco_plugin.html)
 - [Junit-5](https://www.baeldung.com/junit-5-runwith)
+- [Jacoco報告解析](https://www.jianshu.com/p/ef987f1b6f2f)
 - [中文亂碼問題](https://testerhome.com/topics/8329?order_by=like&)
 
 
