@@ -51,7 +51,7 @@ public class AppUserControllerTest {
     @Test
     @DisplayName("創建使用者")
     public void createAppUser() throws Exception {
-        AppUser appUser = new AppUser("helen", "7788", 8);
+        AppUser appUser = new AppUser("海倫", "7788", 8);
         String requestJson = toJson(appUser);
 
         getCreateAppUserPerform(requestJson)

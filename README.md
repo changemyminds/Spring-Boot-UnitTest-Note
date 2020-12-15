@@ -81,7 +81,7 @@ public class AppUserControllerTest {
     @Test
     @DisplayName("創建使用者")
     public void createAppUser() throws Exception {
-        AppUser appUser = new AppUser("helen", "7788", 8);
+        AppUser appUser = new AppUser("海倫", "7788", 8);
         String requestJson = toJson(appUser);
 
         getCreateAppUserPerform(requestJson)
@@ -105,6 +105,20 @@ public class AppUserControllerTest {
 }
 ```
  
+上方的中文字"海倫"在Console顯示是亂碼，因此需要修正，新增下列方式來處理
+```java
+@Configuration
+public class SpringConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.stream()
+                .filter(converter -> converter instanceof MappingJackson2HttpMessageConverter)
+                .findFirst()
+                .ifPresent(converter -> ((MappingJackson2HttpMessageConverter) converter).setDefaultCharset(UTF_8));
+    }
+}
+``` 
 ## 單元測試報告Jacoco設定
 某些情況下，我們需要單元測試覆蓋率測試報告，此時就可以使用Jacoco來幫助我們產生報告。
 
@@ -180,6 +194,6 @@ gradlew -Dfile.encoding=UTF-8 clean build
 - [Junit-5](https://www.baeldung.com/junit-5-runwith)
 - [Jacoco報告解析](https://www.jianshu.com/p/ef987f1b6f2f)
 - [中文亂碼問題](https://testerhome.com/topics/8329?order_by=like&)
-
+- [單元測試字串亂碼](https://stackoverflow.com/questions/58525387/mockmvc-no-longer-handles-utf-8-characters-with-spring-boot-2-2-0-release)
 
 
