@@ -83,7 +83,7 @@ gradlew clean build
 gradlew -Dfile.encoding=UTF-8 clean build
 ```
 ### 結果顯示
-![image](https://github.com/changemyminds/Spring-Boot-UnitTest-Note/pictures/report.PNG)
+![image](https://github.com/changemyminds/Spring-Boot-UnitTest-Note/blob/master/pictures/report.png)
  
 ## 參考
 - [@ExtendWith(SpringExtension.class) vs @ExtendWith(MockitoExtension.class)](https://stackoverflow.com/questions/60308578/extendwithspringextension-class-vs-extendwithmockitoextension-class)
