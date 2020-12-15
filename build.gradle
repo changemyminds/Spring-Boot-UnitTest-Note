@@ -1,0 +1,66 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+    id 'jacoco'
+}
+
+group = 'com.changemyminds'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        // 排除JUnit Platform上運行的JUnit3和JUnit4測試引擎
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+test {
+    systemProperty "file.encoding", "UTF-8"
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport // 測試完畢後產生report
+}
+
+jacoco {
+    toolVersion = '0.8.5' // jacoco版本
+//	reportsDir = file("$buildDir/customJacocoReportDir") // 自訂jacoco報表資料夾
+}
+
+jacocoTestReport {
+    dependsOn test // 再產生報告前需要先運行測試
+
+    reports {
+        xml.enabled false
+        csv.enabled false
+//		html.destination file("${buildDir}/jacocoHtml")
+    }
+
+    // 測試評估後的動作
+    afterEvaluate {
+        classDirectories.from = files(classDirectories.files.collect {
+            // 要忽略domain資料夾、UnitTestNoteApplication檔案。
+            fileTree(dir: it, excludes: ['**/domain/**', '**/UnitTestNoteApplication**'])
+        })
+    }
+}
+
+// 解決Console顯示的中文編碼亂碼的問題
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+
+
+
+
+
+
+
+
