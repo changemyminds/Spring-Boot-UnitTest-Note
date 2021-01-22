@@ -20,7 +20,7 @@ dependencies {
 - `@ExtendWith(SpringExtension.class)` 啟用`@Autowired`、`@MockBean`等等，可以用來取代JUnit4 `@RunWith(SpringJUnit4ClassRunner.class)`的方式。
 - `@ExtendWith(MockitoExtension.class)` 啟用`@Mock`、`@InjectMocks`等等，且不涉及到Spring的注入功能，可以用來取代JUnit4 `@RunWith(MockitoJUnitRunner.class)`的方式。
 - `@DisplayName` 用來補充說明方法名稱。
-- `@Test` 測試方法。
+- `@Test` 測試方法，也可以在內容標記Exception，例如: `@Test(expected = Exception.class)`。
 - `@BeforeEach` 表示在任何方法執行前，都會先執行一次，用來取代JUnit4`@Before`。
 - `@BeforeAll` 表示在執行測試前，會執行一次，用來取代JUnit4`@BeforeClass`，需使用static method。
 - `@AfterEach` 表示在任何方法執行後，都會先執行一次，用來取代JUnit4`@After`。
@@ -29,6 +29,28 @@ dependencies {
 - `@TestFactory` 用來動態產生測試實體。只能回傳`Stream`、`Collection`、`Iterable`、`Iterator`等亂數實體。
 - `@AutoConfigureMockMvc` 啟動的時候自動注入`MockMvc`，可以用來模擬Http Restful(GET、POST、DELETE2等等)。
 
+#### 額外補充
+1. 如果@BeforeAll、@AfterAll沒有將上`static`的話，會報錯，錯誤如下
+```
+org.junit.platform.commons.JUnitException: @BeforeAll method 'public void com.changemymind.blog.controller.AuthControllerTests.setup()' must be static unless the test class is annotated with @TestInstance(Lifecycle.PER_CLASS).
+``` 
+**解決方法**
+使用`@TestInstance(TestInstance.Lifecycle.PER_CLASS)`
+```
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class SampleTests {
+    @BeforeAll
+    public void beforeAll() {
+        // ...
+    }
+
+    @AfterAll
+    public void afterAll() {
+        // ...
+    }
+}
+```
+ 
 ### 常用Mockito
 - `Mockito.mock()` 產生一個空殼的物件，需要搭配`when()`來定義方法。
 - `@Mock` + `@ExtendWith(MockitoExtension.class)`相當於`Mockito.mock()`。
@@ -54,8 +76,29 @@ assertEquals(expected, actual);
 - `assertThrows()` 當某個方法會拋出異常時，使用此方式進行比對Exception。
 - `assertTrue()`、`assertFalse()` 判斷結果是否為真。
 - `verify()` 判斷某個方法是否有被執行過。
- 
- 
+
+使用`AssertJ`的`assertThat()`風格寫法
+- `assertEquals`轉換
+```
+assertEquals(actual, expected);
+assertThat(actual).isEqualTo(expected); // AssertJ
+```
+
+- `assertThrows`轉換
+```
+assertThrows(Exception.class, () -> exception());
+assertThatThrownBy(() -> exception()).isInstanceOf(Exception.class); // AssertJ
+```
+
+- `assertTrue()`和`assertFalse()`轉換
+```
+assertTrue(actual);
+assertThat(actual).isTrue();
+
+assertFalse(actual);
+assertThat(actual).isFalse(); 
+```
+
 ### 測試RESTful API
 在單元測試類別上加上`@SpringBootTest`、`@AutoConfigureMockMvc`等修飾詞。
 下列方式進行簡單的演示`GET`、`POST`方法
