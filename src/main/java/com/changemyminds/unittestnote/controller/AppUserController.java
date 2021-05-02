@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/user")
 @RestController
 public class AppUserController {
-    @Autowired private AppUserService appUserService;
+    @Autowired
+    private AppUserService appUserService;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{username}")

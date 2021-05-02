@@ -16,8 +16,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 public class MockBeanAnnotationUnitTest {
     // 替換掉Spring內容器的UserRepository
-    @MockBean AppUserRepository mockRepository;
-    @Autowired ApplicationContext context;
+    @MockBean
+    AppUserRepository mockRepository;
+    @Autowired
+    ApplicationContext context;
 
     @Test
     public void givenCountMethodMocked_WhenCountInvoked_ThenMockValueReturned() {

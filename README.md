@@ -1,12 +1,17 @@
 # Spring Boot 單元測試筆記
 
 ## 環境
+
 - Win10
 - Gradle Version 6.4
 - Intellij IDEA Community 2020.2
 
+[TOC]
+
 ## JUnit5單元測試
+
 ### Gradle設定
+
 ```groovy
 dependencies {
     // 其他省略
@@ -16,9 +21,13 @@ dependencies {
     }
 }
 ```
+
 ### 常用註解
-- `@ExtendWith(SpringExtension.class)` 啟用`@Autowired`、`@MockBean`等等，可以用來取代JUnit4 `@RunWith(SpringJUnit4ClassRunner.class)`的方式。
-- `@ExtendWith(MockitoExtension.class)` 啟用`@Mock`、`@InjectMocks`等等，且不涉及到Spring的注入功能，可以用來取代JUnit4 `@RunWith(MockitoJUnitRunner.class)`的方式。
+
+- `@ExtendWith(SpringExtension.class)` 啟用`@Autowired`、`@MockBean`
+  等等，可以用來取代JUnit4 `@RunWith(SpringJUnit4ClassRunner.class)`的方式。
+- `@ExtendWith(MockitoExtension.class)` 啟用`@Mock`、`@InjectMocks`
+  等等，且不涉及到Spring的注入功能，可以用來取代JUnit4 `@RunWith(MockitoJUnitRunner.class)`的方式。
 - `@DisplayName` 用來補充說明方法名稱。
 - `@Test` 測試方法，也可以在內容標記Exception，例如: `@Test(expected = Exception.class)`。
 - `@BeforeEach` 表示在任何方法執行前，都會先執行一次，用來取代JUnit4`@Before`。
@@ -30,13 +39,17 @@ dependencies {
 - `@AutoConfigureMockMvc` 啟動的時候自動注入`MockMvc`，可以用來模擬Http Restful(GET、POST、DELETE2等等)。
 
 #### 額外補充
-1. 如果@BeforeAll、@AfterAll沒有將上`static`的話，會報錯，錯誤如下
+
+1. 如果`@BeforeAll`、`@AfterAll`沒有將上`static`的話，會報錯，錯誤如下
+
 ```
 org.junit.platform.commons.JUnitException: @BeforeAll method 'public void com.changemymind.blog.controller.AuthControllerTests.setup()' must be static unless the test class is annotated with @TestInstance(Lifecycle.PER_CLASS).
-``` 
+```
+
 **解決方法**
 使用`@TestInstance(TestInstance.Lifecycle.PER_CLASS)`
-```
+
+```java
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SampleTests {
     @BeforeAll
@@ -50,8 +63,9 @@ public class SampleTests {
     }
 }
 ```
- 
+
 ### 常用Mockito
+
 - `Mockito.mock()` 產生一個空殼的物件，需要搭配`when()`來定義方法。
 - `@Mock` + `@ExtendWith(MockitoExtension.class)`相當於`Mockito.mock()`。
 - `@MockBean` SpringBoot的單元測試，主要是用來替換掉Spring注入的物件，需搭配`@ExtendWith(SpringExtension.class)`。
@@ -61,8 +75,10 @@ public class SampleTests {
 - `MockitoAnnotations.initMocks(this)`  會將`@Mock`、`@InjectMocks`等等物件進行初始化，防止NullPointerException。
 
 ### 常用Assertions
+
 一般再撰寫單元測試時，有關於jupiter.api盡量採用`import static`的方式取代`Assertions`的使用
-```
+
+```java
 // 平常寫法
 Assertions.assertEquals(expected, actual);
 
@@ -78,20 +94,24 @@ assertEquals(expected, actual);
 - `verify()` 判斷某個方法是否有被執行過。
 
 使用`AssertJ`的`assertThat()`風格寫法
+
 - `assertEquals`轉換
-```
+
+```java
 assertEquals(actual, expected);
 assertThat(actual).isEqualTo(expected); // AssertJ
 ```
 
 - `assertThrows`轉換
-```
+
+```java
 assertThrows(Exception.class, () -> exception());
 assertThatThrownBy(() -> exception()).isInstanceOf(Exception.class); // AssertJ
 ```
 
 - `assertTrue()`和`assertFalse()`轉換
-```
+
+```java
 assertTrue(actual);
 assertThat(actual).isTrue();
 
@@ -99,9 +119,49 @@ assertFalse(actual);
 assertThat(actual).isFalse(); 
 ```
 
+### 其他
+
+#### 順序執行
+```java
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class TestMethodOrderTests {
+    @Test
+    @Order(3)
+    public void test3(){
+        System.out.println("test3");
+    }
+
+    @Test
+    @Order(2)
+    public void test2(){
+        System.out.println("test2");
+    }
+
+    @Test
+    @Order(1)
+    public void test1(){
+        System.out.println("test1");
+    }
+    
+    // Result: 
+    // test1
+    // test2
+    // test3    
+}
+```
+
+#### 禁用單元測試
+- `@DisabledIf`
+- `@EnabledIf`
+- `@EnabledIfEnvironmentVariable`
+- `@DisabledIfEnvironmentVariable`
+- `@EnabledIfSystemProperty()`
+- `@DisabledIfSystemProperty()`
+ 
+
 ### 測試RESTful API
-在單元測試類別上加上`@SpringBootTest`、`@AutoConfigureMockMvc`等修飾詞。
-下列方式進行簡單的演示`GET`、`POST`方法
+
+在單元測試類別上加上`@SpringBootTest`、`@AutoConfigureMockMvc`等修飾詞。 下列方式進行簡單的演示`GET`、`POST`方法
 
 ```java
 @SpringBootTest
@@ -147,8 +207,9 @@ public class AppUserControllerTest {
     }	
 }
 ```
- 
+
 上方的中文字"海倫"在Console顯示是亂碼，因此需要修正，新增下列方式來處理
+
 ```java
 @Configuration
 public class SpringConfig implements WebMvcConfigurer {
@@ -161,11 +222,14 @@ public class SpringConfig implements WebMvcConfigurer {
                 .ifPresent(converter -> ((MappingJackson2HttpMessageConverter) converter).setDefaultCharset(UTF_8));
     }
 }
-``` 
+```
+
 ## 單元測試報告Jacoco設定
+
 某些情況下，我們需要單元測試覆蓋率測試報告，此時就可以使用Jacoco來幫助我們產生報告。
 
 ### Gradle安裝
+
 ```groovy
 plugins {
     // 其他省略
@@ -204,22 +268,24 @@ jacocoTestReport {
 ```
 
 ### 執行jacoco，產生報告
-執行jacoco時，比較容易遇到的問題就是產生的報告是亂碼，因為中文字而造成。
-因此需要使用JVM的參數來設定UTF-8來避免此問題。
+
+執行jacoco時，比較容易遇到的問題就是產生的報告是亂碼，因為中文字而造成。 因此需要使用JVM的參數來設定UTF-8來避免此問題。
+
 ```
 -Dfile.encoding=UTF-8
 ```
 
 解決方式如下
-- 使用IDEA執行
-Help => Edit Custom VM Options => 開啟202.6948.69.vmoptions <br>
-將`-Dfile.encoding=utf-8`加入後，重新啟動IDEA。
+
+- 使用IDEA執行 Help => Edit Custom VM Options => 開啟202.6948.69.vmoptions <br>
+  將`-Dfile.encoding=utf-8`加入後，重新啟動IDEA。
 
 > **補充**<br>
 如果重新啟動IDEA後，執行仍然有亂碼問題，解決方式如下 <br>
 File => Invalidate Caches / Restart => 點選Invalidate and Restart，此方式會清除Cache並重新啟動。
- 
+
 - 使用gradlew執行
+
 ```
 # 使用此方式執行，如果有包含中文產生出來會是亂碼
 gradlew clean build
@@ -227,13 +293,16 @@ gradlew clean build
 # 可以使用UTF-8參數進行編碼，這樣不會產生亂碼
 gradlew -Dfile.encoding=UTF-8 clean build
 ```
+
 ### 結果顯示
-![image](https://github.com/changemyminds/Spring-Boot-UnitTest-Note/blob/master/pictures/report.png)
- 
+
+![image](pictures/report.png)
 
 ## 參考
+
 - [@ExtendWith(SpringExtension.class) vs @ExtendWith(MockitoExtension.class)](https://stackoverflow.com/questions/60308578/extendwithspringextension-class-vs-extendwithmockitoextension-class)
 - [Jacoco Gradle 6.7.1官方文件](https://docs.gradle.org/current/userguide/jacoco_plugin.html)
+- [JUint5官方文件](https://junit.org/junit5/docs/current/user-guide/)
 - [Junit-5](https://www.baeldung.com/junit-5-runwith)
 - [Jacoco報告解析](https://www.jianshu.com/p/ef987f1b6f2f)
 - [中文亂碼問題](https://testerhome.com/topics/8329?order_by=like&)

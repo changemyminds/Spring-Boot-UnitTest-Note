@@ -13,7 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
  */
 @ExtendWith(MockitoExtension.class)
 public class MockAnnotationUnitTest {
-    @Mock AppUserRepository mockRepository;
+    @Mock
+    AppUserRepository mockRepository;
 
     @Test
     public void givenCountMethodMocked_WhenCountInvoked_ThenMockValueReturned() {

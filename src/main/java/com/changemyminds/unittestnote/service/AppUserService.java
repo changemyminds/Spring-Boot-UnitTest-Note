@@ -9,5 +9,6 @@ import com.changemyminds.unittestnote.domain.AppUser;
  */
 public interface AppUserService {
     AppUser findByUsername(String username);
+
     AppUser createAppUser(AppUser appUser);
 }

@@ -25,8 +25,10 @@ import static org.mockito.Mockito.when;
  */
 public class AppUserServiceTests {
     // 會將@Mock物件注入，這邊會將userRepository注入
-    @InjectMocks private AppUserServiceImpl appUserService;
-    @Mock private AppUserRepository appUserRepository;
+    @InjectMocks
+    private AppUserServiceImpl appUserService;
+    @Mock
+    private AppUserRepository appUserRepository;
 
     @BeforeEach
     void setup() {

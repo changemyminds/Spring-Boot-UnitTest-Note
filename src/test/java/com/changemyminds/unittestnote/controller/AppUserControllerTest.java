@@ -1,17 +1,14 @@
-package com.changemyminds.unittestnote;
+package com.changemyminds.unittestnote.controller;
 
 import com.changemyminds.unittestnote.domain.AppUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -23,10 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Date: 2020/12/15.
  * Description:
  */
-@SpringBootTest
-@AutoConfigureMockMvc
-public class AppUserControllerTest {
-    @Autowired private MockMvc mockMvc;
+public class AppUserControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("找尋存在的使用者資訊")
@@ -39,6 +33,22 @@ public class AppUserControllerTest {
                 .andExpect(jsonPath("$.password").value("1234"))
                 .andExpect(jsonPath("$.age").value(27));
     }
+
+    @Test
+    @DisplayName("找尋存在的使用者資訊，另外一種寫法")
+    public void findByUsernameExist2() throws Exception {
+        ResultActions resultActions = performGet("/api/user/changemyminds")
+                .andDo(PRINT)
+                .andExpect(STATUS_OK);
+
+        AppUser appUser = fromResult(resultActions, AppUser.class);
+        assertThat(appUser.getId()).isEqualTo(1L);
+        assertThat(appUser.getUsername()).isEqualTo("changemyminds");
+        assertThat(appUser.getPassword()).isEqualTo("1234");
+        assertThat(appUser.getAge()).isEqualTo(27);
+    }
+
+
 
     @Test
     @DisplayName("找尋不存在的使用者資訊")
