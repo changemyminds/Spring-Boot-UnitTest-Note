@@ -1,17 +1,19 @@
 # Spring Boot 單元測試筆記
 
-## 環境
+## 目錄
+[TOC]
+
+## 基本環境
 
 - Win10
 - Gradle Version 6.4
 - Intellij IDEA Community 2020.2
-
-[TOC]
-
+ 
 ## JUnit5單元測試
 
-### Gradle設定
+### Gradle安裝
 
+- build.gradle
 ```groovy
 dependencies {
     // 其他省略
@@ -22,23 +24,26 @@ dependencies {
 }
 ```
 
-### 常用註解
+### 常用註解統整
 
-- `@ExtendWith(SpringExtension.class)` 啟用`@Autowired`、`@MockBean`
-  等等，可以用來取代JUnit4 `@RunWith(SpringJUnit4ClassRunner.class)`的方式。
-- `@ExtendWith(MockitoExtension.class)` 啟用`@Mock`、`@InjectMocks`
-  等等，且不涉及到Spring的注入功能，可以用來取代JUnit4 `@RunWith(MockitoJUnitRunner.class)`的方式。
-- `@DisplayName` 用來補充說明方法名稱。
-- `@Test` 測試方法，也可以在內容標記Exception，例如: `@Test(expected = Exception.class)`。
-- `@BeforeEach` 表示在任何方法執行前，都會先執行一次，用來取代JUnit4`@Before`。
-- `@BeforeAll` 表示在執行測試前，會執行一次，用來取代JUnit4`@BeforeClass`，需使用static method。
-- `@AfterEach` 表示在任何方法執行後，都會先執行一次，用來取代JUnit4`@After`。
-- `@AfterAll` 表示在執行測試後，會執行一次，用來取代JUnit4`@AfterClass`，需使用static method。
-- `@RepeatedTest` 重複測試方法用。
-- `@TestFactory` 用來動態產生測試實體。只能回傳`Stream`、`Collection`、`Iterable`、`Iterator`等亂數實體。
-- `@AutoConfigureMockMvc` 啟動的時候自動注入`MockMvc`，可以用來模擬Http Restful(GET、POST、DELETE2等等)。
-
-#### 額外補充
+| 註解名稱 | 功能描述  |  備註 |
+|---------|---------|-------|
+|`@ExtendWith(SpringExtension.class)`| 啟用`@Autowired`、`@MockBean`等等，涉及到Spring的注入功能| 可以用來取代JUnit4 `@RunWith(SpringJUnit4ClassRunner.class)`|
+|`@ExtendWith(MockitoExtension.class)`|啟用`@Mock`、`@InjectMocks`等等，且不涉及到Spring的注入功能|可以用來取代JUnit4 `@RunWith(MockitoJUnitRunner.class)`|
+|`@DisplayName`|用來補充說明方法名稱| JUnit4沒有此參數 |
+|`@Test`|測試方法，也可以在內容標記Exception，例如: `@Test(expected = Exception.class)`|   |
+|`@BeforeEach`|表示在任何方法執行**前**，都會先執行一次|取代JUnit4`@Before`|
+|`@AfterEach`|表示在任何方法執行**後**，都會先執行一次|取代JUnit4`@After`|
+|`@BeforeAll`|表示在執行測試**前**，只會執行一次|取代JUnit4`@BeforeClass`，需使用`static method`|
+|`@AfterEach`|表示在執行測試**後**，只會執行一次|取代JUnit4`@AfterClass`，需使用`static method`|
+|`@AfterEach`|表示在執行測試**後**，只會執行一次|取代JUnit4`@AfterClass`，需使用`static method`| 
+|`@RepeatedTest`|重複執行測試，例如: `@RepeatedTest(3)` 會執行三次|重複執行也會觸發`@BeforeEach`、`@AfterEach`的生命週期| 
+|`@TestFactory`|用來動態產生測試實體。只能回傳`Stream`、`Collection`、`Iterable`、`Iterator`等亂數實體。|| 
+|`@AutoConfigureMockMvc`|啟動的時自動注入`MockMvc`，用來模擬Http請求，支援Restful(`GET`、`POST`、`PUT`、`DELETE`等等)|
+|`@TestMethodOrder`|讓測試方法有順序性，例如: `@TestMethodOrder(MethodOrderer.OrderAnnotation.class)`通常會搭配`@Order(1)`使用。|`@Order(1)、@Order(100)`的編號越小代表執行的優先權越高，這邊會先執行1再執行100的方法|
+ 
+ 
+#### 註解額外補充
 
 1. 如果`@BeforeAll`、`@AfterAll`沒有將上`static`的話，會報錯，錯誤如下
 
@@ -74,7 +79,9 @@ public class SampleTests {
 - `ArgumentMatchers.any()`、`ArgumentMatchers.anyString()`等等 自訂Mock傳入的任意型別(參數)，通常搭配`Mockito.when()`。
 - `MockitoAnnotations.initMocks(this)`  會將`@Mock`、`@InjectMocks`等等物件進行初始化，防止NullPointerException。
 
-### 常用Assertions
+詳細使用方式待補。
+
+### Assertions
 
 一般再撰寫單元測試時，有關於jupiter.api盡量採用`import static`的方式取代`Assertions`的使用
 
@@ -87,38 +94,37 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 assertEquals(expected, actual);
 ```
 
-- `assertAll(...)` 判斷多個數值的結果。
-- `assertEquals()` 判斷數值是否相等。
-- `assertThrows()` 當某個方法會拋出異常時，使用此方式進行比對Exception。
-- `assertTrue()`、`assertFalse()` 判斷結果是否為真。
-- `verify()` 判斷某個方法是否有被執行過。
+#### 常用判斷方式
 
-使用`AssertJ`的`assertThat()`風格寫法
-
-- `assertEquals`轉換
-
+|方法名稱|描述用途|
+|---------|---------|
+|`assertAll(...)`|判斷多個數值的結果。|
+|`assertEquals(...)`|判斷數值是否相等。|
+|`assertThrows(...)`|當某個方法會拋出異常時，使用此方式進行比對Exception。|
+|`assertTrue(...)`、`assertFalse(...)`|當某個方法會拋出異常時，使用此方式進行比對Exception。|
+|`verify(...)`|判斷某個方法是否有被執行過或執行的次數|
+|`fail(...)`|執行流程不正確時，用此方法讓**測試失敗**。|
+  
+#### AssertJ風格寫法
+ 
 ```java
+import static org.assertj.core.api.Assertions.assertThat;
+
+// assertEquals轉換
 assertEquals(actual, expected);
 assertThat(actual).isEqualTo(expected); // AssertJ
-```
 
-- `assertThrows`轉換
-
-```java
+// assertThrows轉換
 assertThrows(Exception.class, () -> exception());
 assertThatThrownBy(() -> exception()).isInstanceOf(Exception.class); // AssertJ
-```
 
-- `assertTrue()`和`assertFalse()`轉換
-
-```java
+// assertTrue、assertFalse轉換
 assertTrue(actual);
 assertThat(actual).isTrue();
-
 assertFalse(actual);
 assertThat(actual).isFalse(); 
 ```
-
+  
 ### 其他
 
 #### 順序執行
@@ -224,9 +230,9 @@ public class SpringConfig implements WebMvcConfigurer {
 }
 ```
 
-## 單元測試報告Jacoco設定
+## 單元測試報告Jacoco
 
-某些情況下，我們需要單元測試覆蓋率測試報告，此時就可以使用Jacoco來幫助我們產生報告。
+某些情況下，我們需要單元測試覆蓋率(Code Coverage)測試報告，此時就可以使用Jacoco來幫助我們產生報告。
 
 ### Gradle安裝
 
@@ -277,14 +283,7 @@ jacocoTestReport {
 
 解決方式如下
 
-- 使用IDEA執行 Help => Edit Custom VM Options => 開啟202.6948.69.vmoptions <br>
-  將`-Dfile.encoding=utf-8`加入後，重新啟動IDEA。
-
-> **補充**<br>
-如果重新啟動IDEA後，執行仍然有亂碼問題，解決方式如下 <br>
-File => Invalidate Caches / Restart => 點選Invalidate and Restart，此方式會清除Cache並重新啟動。
-
-- 使用gradlew執行
+1. 使用gradlew or gradle執行
 
 ```
 # 使用此方式執行，如果有包含中文產生出來會是亂碼
@@ -294,10 +293,58 @@ gradlew clean build
 gradlew -Dfile.encoding=UTF-8 clean build
 ```
 
+2. 使用IDEA執行 Help => Edit Custom VM Options => 開啟202.6948.69.vmoptions<br>將`-Dfile.encoding=utf-8`加入後，重新啟動IDEA。
+
+**補充**
+> 如果重新啟動IDEA後，執行仍然有亂碼問題，解決方式如下
+File => Invalidate Caches / Restart => 點選Invalidate and Restart，此方式會清除Cache並重新啟動。
+
+ 
+
 ### 結果顯示
 
 ![image](pictures/report.png)
 
+
+### 與Sonarqube進行整合
+
+#### 安裝與啟動Sonarqube
+待補。
+
+#### Gradle安裝
+- build.gradle
+```groovy
+plugins {
+    // 其他省略
+    id "org.sonarqube" version "3.3"
+}
+
+// 其他省略
+sonarqube {
+    properties {
+        property "sonar.host.url", "YOUR_SONARQUBE_HOST"
+        // 可以使用帳號或Token登入
+        property "sonar.login", "SONARQUBE_LOGIN_OR_SONARQUBE_TOKEN"
+        // 如果使用Token登入，則password可以省略
+        property "sonar.password", "SONARQUBE_PASSWORD"
+        property 'sonar.core.codeCoveragePlugin', 'jacoco'
+        property 'sonar.jacoco.reportPaths', "${buildDir}/jacoco/test.exec"
+    }
+}
+
+// 運行sonarqube指令前會先運行test
+tasks['sonarqube'].dependsOn test
+```
+#### 執行命令
+
+```bash
+# 基本執行方式
+gradle sonarqube
+
+# 執行時，將參數進行替換掉 
+gradle sonarqube -Dsonar.host.url=YOUR_SONARQUBE_HOST -Dsonar.login=SONARQUBE_LOGIN -Dsonar.password=SONARQUBE_PASSWORD
+
+```
 ## 參考
 
 - [@ExtendWith(SpringExtension.class) vs @ExtendWith(MockitoExtension.class)](https://stackoverflow.com/questions/60308578/extendwithspringextension-class-vs-extendwithmockitoextension-class)
